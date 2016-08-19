@@ -13,12 +13,11 @@ SCC <- readRDS("Source_Classification_Code.rds")
 
 # plotting function
 
-if(!require(dplyr)) install.packages("dplyr")
-baltimore <- filter(NEI, fips == "24510")
-agg <- aggregate(Emissions ~ year, FUN=sum, data=baltimore)
+baltimore <- subset(NEI, fips == "24510") 
+agg <- with(baltimore, tapply(Emissions, year, sum))
 
 png("plot2.png")
-barplot(agg$Emissions, names.arg=agg$year, 
+barplot(agg,
         xlab="Year", ylab="Emissions (tons)", 
         main="Total PM2.5 Emissions in Baltimore City, MD")
 dev.off()

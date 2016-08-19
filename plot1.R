@@ -13,10 +13,10 @@ SCC <- readRDS("Source_Classification_Code.rds")
 
 # plotting function
 
-agg <- aggregate(Emissions ~ year, FUN=sum, data=NEI)
+agg <- tapply(NEI$Emissions, NEI$year, sum)
 
 png("plot1.png")
-barplot(agg$Emissions, names.arg=agg$year, 
+barplot(agg, 
         xlab="Year", ylab="Emissions (tons)", 
         main="US Total PM2.5 Emissions, 1999-2008")
 dev.off()

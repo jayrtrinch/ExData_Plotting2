@@ -15,19 +15,12 @@ SCC <- readRDS("Source_Classification_Code.rds")
 
 i <- grepl("[Vv]ehicles", SCC$EI.Sector)
 SCC_veh <- SCC[i, 1]
-SCC_veh <- as.character(SCC_veh)
-
-if(!require(dplyr)) install.packages("dplyr")
-
-veh <- data.frame()
-for (i in SCC_veh) {
-  sub <- NEI %>% filter(SCC == i & fips == "24510") %>% select(year, Emissions)
-  veh <- rbind(veh, sub)
-}
-agg <- aggregate(Emissions ~ year, FUN=sum, data=veh)
+baltimore <- subset(NEI, fips == "24510") 
+veh <- baltimore[baltimore$SCC %in% SCC_veh, ]
+agg <- with(veh, tapply(Emissions, year, sum))
 
 png("plot5.png", width = 600)
-barplot(agg$Emissions, names.arg=agg$year, 
+barplot(agg, 
         xlab="Year", ylab="Emissions (tons)", 
         main="Total PM2.5 Emissions from Motor Vehicle Sources in Baltimore City, MD")
 dev.off()

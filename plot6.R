@@ -15,20 +15,12 @@ SCC <- readRDS("Source_Classification_Code.rds")
 
 i <- grepl("[Vv]ehicles", SCC$EI.Sector)
 SCC_veh <- SCC[i, 1]
-SCC_veh <- as.character(SCC_veh)
-
-if(!require(dplyr)) install.packages("dplyr")
-
-veh <- data.frame()
-for (i in SCC_veh) {
-  sub <- NEI %>% filter(fips == "24510" | fips == "06037") %>% filter(SCC == i) %>% select(fips, year, Emissions)
-  veh <- rbind(veh, sub)
-}
-agg <- aggregate(Emissions ~ fips+year, FUN=sum, data=veh)
+sub <- subset(NEI, fips == "24510" | fips == "06037")
+veh <- sub[sub$SCC %in% SCC_veh, ]
 
 if(!require(ggplot2)) install.packages("ggplot2")
-bar <- ggplot(agg, aes(x=factor(year), y=Emissions, fill=fips))
-bar + geom_bar(stat="identity", position="dodge") + 
+bar <- ggplot(veh, aes(x=factor(year), y=Emissions, fill=fips))
+bar + geom_bar(stat="identity") + facet_grid(.~fips) + 
   labs(x="Year", y="Emissions (tons)", title="Total PM 2.5 Emissions from Motor Vehicle Sources", fill="County") + 
   scale_fill_discrete(labels = c("Los Angeles, CA", "Baltimore, MD"))
 ggsave(file="plot6.png")
